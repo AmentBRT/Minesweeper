@@ -1,7 +1,7 @@
 #include "clui.h"
+#include <iostream>
 #include <time.h>
 #include <fstream>
-#include <iostream>
 using namespace std;
 
 struct coordinate{
@@ -27,6 +27,7 @@ struct score{
 
 void get_name();
 void change_name();
+
 void window_background();
 
 void menu_print();
@@ -37,22 +38,20 @@ void game_mode();
 
 void new_game(int,int);
 void custom_game();
+void game(int**,char**,int,int,int);
+void save_game(int**,char**,int,int,int);
+
 void placing_bomb(int**,int,int);
 void empty_cells(int**,int,int,int);
 
-void game_background(int);
-void field_background(int);
-void solution_print(int**,int,int,int);
-
-void game(int**,char**,int,int,int);
 void win_game(int);
 void lose_game(int);
 void replay(int);
 void reset_game(int**,char**,int);
 
-int string_length(string);
-void save_game(int**,char**,int,int,int);
-bool name_exists(string);
+void game_background(int);
+void field_background(int);
+void solution_print(int**,int,int,int);
 
 int load_menu();
 void load_game();
@@ -64,6 +63,9 @@ void scores(int);
 score load_score(string);
 void leaderboard_print();
 void leaderboard();
+
+int string_length(string);
+bool name_exists(string);
 
 string Name;
 bool Replay=false;
@@ -363,148 +365,13 @@ void custom_game(){
     new_game(LENGTH, BOMB);
 }
 
-void placing_bomb(int** game_field, int LENGTH, int BOMB){
-    srand(time(NULL));
-
-    for(int i=0; i<BOMB; i++){
-        int a=(rand()%LENGTH)+1, b=(rand()%LENGTH)+1;
-        if(game_field[a][b]==9) i--;
-        else{
-            game_field[a][b]=9;
-            empty_cells(game_field, LENGTH, a, b);
-        }
-    }
-}
-
-void empty_cells(int** game_field, int LENGTH, int x, int y){
-    for(int i=x-1; i<=x+1; i++)
-        for(int j=y-1; j<=y+1; j++){
-            if(i==0 || j==0 || i==LENGTH+1 || j==LENGTH+1) continue;
-            if(game_field[i][j]!=9) game_field[i][j]++;
-        }
-}
-
-void game_background(int LENGTH){
-    window_background();
-
-    change_background_color(1);
-
-    cursor_to_pos(windows.r_middle-(LENGTH+1)/2, windows.c_middle-(LENGTH+1));
-    for(int i=(LENGTH+1)*2; i; i--){
-        printf(".");
-        flush();
-        delay(1);
-    }
-    for(int i=LENGTH+1; i; i--){
-        cursor_backward(1);
-        cursor_down(1);
-        printf(".");
-        flush();
-        delay(1);
-    }
-    for(int i=(LENGTH+1)*2; i; i--){
-        cursor_backward(2);
-        printf(".");
-        flush();
-        delay(1);
-    }
-    for(int i=LENGTH+1; i; i--){
-        cursor_backward(1);
-        cursor_up(1);
-        printf(".");
-        flush();
-        delay(1);
-    }
-    reset_color();
-}
-
-void field_background(int LENGTH){
-    change_background_color(0);
-    for(int a=1; a<=LENGTH; a++){
-        cursor_to_pos(windows.r_middle-((LENGTH-1)/2)+a-1, windows.c_middle-(LENGTH+1));
-        flush();
-        for(int i=LENGTH; i; i--) printf(" X");
-        flush();
-        printf(" ");
-    }
-    reset_color();
-}
-
-void solution_print(int** game_field, int LENGTH, int r, int c){
-    for(int i=1; i<=LENGTH; i++, r++){
-        cursor_to_pos(r, c);
-
-        for(int j=1; j<=LENGTH; j++){
-            if(game_field[i][j]==9){
-                flush();
-                change_color(3);
-                printf("B ");
-                delay(1);
-                reset_color();
-            }
-            else if(game_field[i][j]==0){
-                flush();
-                printf("  ");
-                delay(1);
-            }
-            else if(game_field[i][j]!=0){
-                flush();
-                change_color(11);
-                printf("%d ", game_field[i][j]);
-                delay(1);
-                reset_color();
-            }
-        }
-    }
-}
-
 void game(int** game_field, char** flag, int LENGTH, int BOMB, int flags){
     if(LENGTH%2==0) cursor_to_pos(windows.r_middle, windows.c_middle-2);
     if(LENGTH%2!=0) cursor_to_pos(windows.r_middle, windows.c_middle-1);
 
-    //int start=time(NULL);
-
     bool b_to_menu=false;
 
     for(int i=(LENGTH+1)/2, j=(LENGTH+1)/2;;){
-        //int now=time(NULL);
-        /*if(now-start>=TIME_LIMIT){
-            play_beep();
-            cursor_to_pos(r_middle-(LENGTH/2)-4, c_middle-6);
-            flush();
-            printf("Time's Up!");
-
-            cursor_to_pos(r_middle-(LENGTH/2)-3, c_middle-5);
-            flush();
-            printf("You Lost!");
-
-            cursor_to_pos(r_middle-(LENGTH/2)-2, c_middle-11);
-            flush();
-            printf("press \"R\" for \"Replay\"");
-
-            solution_print(r_middle-((LENGTH-1)/2), c_middle-LENGTH);
-
-            int time1=time(NULL);
-            flush();
-            for(;;){
-                int time2=time(NULL);
-                if(time2-time1>=7) break;
-                if(nb_getch()=='r' || nb_getch()=='R'){
-                    clear_screen();
-                    window_background(rows, columns);
-                    game_background(r_middle, c_middle);
-                    for(int a=1; a<=LENGTH; a++)
-                        for(int b=1; b<=LENGTH; b++){
-                            game_field[a][b]=0;
-                            flag[a][b]=0;
-                        }
-                    bomb();
-                    game(r_middle, c_middle, rows, columns);
-                }
-            }
-            break;
-        }*/
-
         int win=0;
         for(int a=1; a<=LENGTH; a++){
             for(int b=1; b<=LENGTH; b++){
@@ -629,6 +496,73 @@ void game(int** game_field, char** flag, int LENGTH, int BOMB, int flags){
     }
 }
 
+void save_game(int** game_field, char** flag, int LENGTH, int BOMB, int flags){
+    string location;
+
+    for(int i=1;;i++){
+        string loc{"Saves/"};
+        loc += i+'0';
+        loc += ".txt";
+
+        ifstream MyReadFile(loc);
+
+        string text;
+        getline(MyReadFile, text);
+        MyReadFile.close();
+
+        location=loc;
+
+        if(name_exists(text)) break;
+        if(string_length(text)==0) break;
+    }
+
+    ofstream MyFile(location);
+
+    MyFile << '!' << Name;
+    MyFile << '@' << LENGTH;
+    MyFile << '#' << BOMB;
+
+    MyFile << '$';
+    for(int i=1; i<=LENGTH; i++){
+        for(int j=1; j<=LENGTH; j++){
+            MyFile << game_field[i][j];
+        }
+    }
+
+    MyFile << '%';
+    for(int i=1; i<=LENGTH; i++){
+        for(int j=1; j<=LENGTH; j++){
+            MyFile << flag[i][j];
+        }
+    }
+    
+    MyFile << '^' << flags;
+    MyFile << '&';
+
+    MyFile.close();
+}
+
+void placing_bomb(int** game_field, int LENGTH, int BOMB){
+    srand(time(NULL));
+
+    for(int i=0; i<BOMB; i++){
+        int a=(rand()%LENGTH)+1, b=(rand()%LENGTH)+1;
+        if(game_field[a][b]==9) i--;
+        else{
+            game_field[a][b]=9;
+            empty_cells(game_field, LENGTH, a, b);
+        }
+    }
+}
+
+void empty_cells(int** game_field, int LENGTH, int x, int y){
+    for(int i=x-1; i<=x+1; i++)
+        for(int j=y-1; j<=y+1; j++){
+            if(i==0 || j==0 || i==LENGTH+1 || j==LENGTH+1) continue;
+            if(game_field[i][j]!=9) game_field[i][j]++;
+        }
+}
+
 void win_game(int LENGTH){
     play_beep();
     cursor_to_pos(windows.r_middle-(LENGTH/2)-3, windows.c_middle-5);
@@ -677,80 +611,78 @@ void reset_game(int** game_field, char** flag, int LENGTH){
     }
 }
 
-int string_length(string text){
-    int length=0;
-    for(; text[length]!='\0'; length++);
+void game_background(int LENGTH){
+    window_background();
 
-    return length;
+    change_background_color(1);
+
+    cursor_to_pos(windows.r_middle-(LENGTH+1)/2, windows.c_middle-(LENGTH+1));
+    for(int i=(LENGTH+1)*2; i; i--){
+        printf(".");
+        flush();
+        delay(1);
+    }
+    for(int i=LENGTH+1; i; i--){
+        cursor_backward(1);
+        cursor_down(1);
+        printf(".");
+        flush();
+        delay(1);
+    }
+    for(int i=(LENGTH+1)*2; i; i--){
+        cursor_backward(2);
+        printf(".");
+        flush();
+        delay(1);
+    }
+    for(int i=LENGTH+1; i; i--){
+        cursor_backward(1);
+        cursor_up(1);
+        printf(".");
+        flush();
+        delay(1);
+    }
+    reset_color();
 }
 
-void save_game(int** game_field, char** flag, int LENGTH, int BOMB, int flags){
-    string location;
-
-    for(int i=1;;i++){
-        string loc{"Saves/"};
-        loc += i+'0';
-        loc += ".txt";
-
-        ifstream MyReadFile(loc);
-
-        string text;
-        getline(MyReadFile, text);
-        MyReadFile.close();
-
-        location=loc;
-
-        if(name_exists(text)) break;
-        if(string_length(text)==0) break;
+void field_background(int LENGTH){
+    change_background_color(0);
+    for(int a=1; a<=LENGTH; a++){
+        cursor_to_pos(windows.r_middle-((LENGTH-1)/2)+a-1, windows.c_middle-(LENGTH+1));
+        flush();
+        for(int i=LENGTH; i; i--) printf(" X");
+        flush();
+        printf(" ");
     }
-
-    ofstream MyFile(location);
-
-    MyFile << '!' << Name;
-    MyFile << '@' << LENGTH;
-    MyFile << '#' << BOMB;
-
-    MyFile << '$';
-    for(int i=1; i<=LENGTH; i++){
-        for(int j=1; j<=LENGTH; j++){
-            MyFile << game_field[i][j];
-        }
-    }
-
-    MyFile << '%';
-    for(int i=1; i<=LENGTH; i++){
-        for(int j=1; j<=LENGTH; j++){
-            MyFile << flag[i][j];
-        }
-    }
-    
-    MyFile << '^' << flags;
-    MyFile << '&';
-
-    MyFile.close();
+    reset_color();
 }
 
-bool name_exists(string text){
-    if(string_length(text)!=0){
-        string s_name;
-        int i=1;
-        int a=0;
+void solution_print(int** game_field, int LENGTH, int r, int c){
+    for(int i=1; i<=LENGTH; i++, r++){
+        cursor_to_pos(r, c);
 
-        for(; text[i]!='@'; a++, i++){
-            s_name[a]=text[i];
-        } s_name[a]=0;
-
-        int len = string_length(s_name);
-        if(string_length(Name)==len){
-            for(int j=0; j<len; j++){
-                if(s_name[j]!=Name[j]) return false;
+        for(int j=1; j<=LENGTH; j++){
+            if(game_field[i][j]==9){
+                flush();
+                change_color(3);
+                printf("B ");
+                delay(1);
+                reset_color();
             }
-
-            return true;
+            else if(game_field[i][j]==0){
+                flush();
+                printf("  ");
+                delay(1);
+            }
+            else if(game_field[i][j]!=0){
+                flush();
+                change_color(11);
+                printf("%d ", game_field[i][j]);
+                delay(1);
+                reset_color();
+            }
         }
     }
-
-    return false;
 }
 
 int load_menu(){
@@ -954,8 +886,6 @@ void loaded_field_background(int** game_field, char** flag, int LENGTH){
     reset_color();
 }
 
-void remove_save(string);
-
 void scores(int point){
     string location;
 
@@ -1095,4 +1025,34 @@ void leaderboard(){
     }
 
     menu();
+}
+
+int string_length(string text){
+    int length=0;
+    for(; text[length]!='\0'; length++);
+
+    return length;
+}
+
+bool name_exists(string text){
+    if(string_length(text)!=0){
+        string s_name;
+        int i=1;
+        int a=0;
+
+        for(; text[i]!='@'; a++, i++){
+            s_name[a]=text[i];
+        } s_name[a]=0;
+
+        int len = string_length(s_name);
+        if(string_length(Name)==len){
+            for(int j=0; j<len; j++){
+                if(s_name[j]!=Name[j]) return false;
+            }
+
+            return true;
+        }
+    }
+
+    return false;
 }
