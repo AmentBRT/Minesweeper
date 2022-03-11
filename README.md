@@ -15,3 +15,6 @@ and "Q" for quitting.
 - **Normal:** 12 * 12 board, 28 mines
 - **Hard:** 20 * 20 board, 96 mines
 - **Custom**
+## How to run
+* Download Project folder.
+* Run the EXE file. (or compile the code in presence of CLUI library)
