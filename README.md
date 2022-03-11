@@ -17,4 +17,4 @@ and "Q" for quitting.
 - **Custom**
 ## How to run
 * Download [Project](https://github.com/AmentBRT/Minesweeper/tree/main/Project) folder.
-* Run the EXE file. (or compile the code in presence of CLUI library)
+* Run the EXE file. (or compile the code in presence of [CLUI](https://github.com/AmentBRT/Minesweeper/blob/main/clui.h) library)
