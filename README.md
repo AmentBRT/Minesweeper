@@ -16,5 +16,5 @@ and "Q" for quitting.
 - **Hard:** 20 * 20 board, 96 mines
 - **Custom**
 ## How to run
-* Download Project folder.
+* Download [Project](https://github.com/AmentBRT/Minesweeper/tree/main/Project) folder.
 * Run the EXE file. (or compile the code in presence of CLUI library)
